@@ -7,7 +7,7 @@ os.environ['ARCHFLAGS'] = '-Wno-error=unused-command-line-argument-hard-error-in
 
 setup(
     name="secureconfig",
-    version="0.1.2c",
+    version="0.1.4c",
     description="Configuration-oriented encryption toolkit to make secure config files simple",
     url="https://bitbucket.org/nthmost/python-secureconfig",
     author="Naomi Most",
