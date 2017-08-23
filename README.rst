@@ -111,13 +111,6 @@ All of the SecureConfig* classes can be used with or without encryption keys,
 although you'll get a SecureConfigException('bad data or no encryption key') if
 you try to parse a data structure (such as JSON) out of encrypted text.
 
-Finally, in secureconfig is a class called SecureString, which is a subclass of the
-string object. Its special function is to zero out the memory location of the string
-payload. This class has its own section and explanation at the bottom.
-
-SecureString must be considered HAZARDOUS MATERIALS and not implicitly trusted.
-See below for why.
-
 
 
 Installation and Requirements
@@ -212,13 +205,10 @@ Basic usage (CHANGED SINCE 0.1.0):
     config = SecureJson.from_file('.keys/aes_key', filepath=configpath)
 
     username = config.get('credentials', 'username')
-    password = SecureString(config.get('credentials', 'password'))
+    password = config.get('credentials', 'password')
 
     connection = GetSomeConnection(username, password)
 
-    # SecureString overwrites its string data with zeroes upon garbage collection.
-    del(password)
-    
     # set a new password 
     config.set('credentials', 'password', 'better_password')
     
@@ -269,45 +259,6 @@ Basic Usage (CHANGED SINCE 0.1.0):
     connection = GetSomeConnection(username, password)
 
 
-SecureString
-------------
-
-"RAM security is haaaard" --Noah Kantrowitz, https://twitter.com/kantrn/status/461654722558963712
-
-SecureString is a subclass of the string object with one modification: when deleted
-and garbage-collected by python, or when its .burn() function is called, which 
-explicitly zeroes out the data.
-
-Now this documentation must spend due time convincing you why it is not "secure".
-
-Python generally tries to create references to 'payload' data in memory rather than
-copy payloads whenever possible, but in those and other scenarios, you may wind up
-having string data copied into other locations, and SecureString won't have any idea.
-
-In a "tight" scenario, e.g. where SecureString could be used to receive the `password` 
-and then immediately be "burned after reading", SecureString can be trusted to zero
-out the string data completely.  Outside of these strict scenarios, a number of 
-circumstances will create copies of your sensitive data in memory, such as 
-concatenation of strings and use of the comparison operator on strings held in lists. 
-
-You must also keep in mind that, even if you del(secure_string) and explicitly
-run gc.collect(), your string will still be in memory if there are still references
-to that string lying around in other objects.
-
-Also, if your python program does not complete gracefully, garbage collection may
-not run completely or at all, so SecureString memory will not be wiped.  If you want
-to insert gc.collect() statements to proactively scrape these strings, that is an
-option, but there can be performance drawbacks to aggressively running garbage 
-collection operations.
-
-Finally, different python interpreters handle memory differently, and SecureConfig 
-hasn't yet been tested on more than just the standard python interpreter and the
-ipython interpreter.
-
-Given the above, SecureString cannot at this time be implicity trusted as
-"secure", since so much depends upon how it's used.
-
-
 Future
 ------
 
@@ -315,6 +266,7 @@ Planned features include::
 
 - more automated-deployment-oriented utils
 - asymmetric key deployments (e.g. RSA public key encryption)
+- securestring class
 
 
 CONTACT
