@@ -85,7 +85,7 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
         '''
         if not self.has_option(sec, key):
             if encrypt is True:
-                new_val = self.ck.sigil + self.ck.encrypt(new_val).decode()
+                new_val = self.ck.sigil + self.ck.encrypt(new_val.encode()).decode()
             return self.raw_set(sec, key, new_val)
 
         old_raw_val = self.raw_get(sec, key)
